@@ -1,0 +1,20 @@
+{
+  "name": "create-factorio-mod",
+  "bin": "./bin.js",
+  "version": "0.0.1",
+  "main": "./build/index.js",
+  "files": [
+    "build",
+    "bin.js"
+  ],
+  "author": "cdaringe",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "14.14.22",
+    "typescript": "4.1.3"
+  },
+  "dependencies": {
+    "execa": "^5.0.0",
+    "meow": "^9.0.0"
+  }
+}
