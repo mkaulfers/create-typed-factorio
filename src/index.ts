@@ -10,7 +10,7 @@ const asInstallString = (deps: Record<string, string>) =>
 
 const devDeps = {
   typescript: "latest",
-  "factorio-type-kit": "latest",
+  "typed-factorio": "latest",
   "npm-run-all": "latest",
   "typescript-to-lua": "latest",
 };
@@ -49,7 +49,7 @@ const defaultTsconfig = {
     noHeader: true,
     noImplicitSelf: true,
   },
-  include: ["./**/*", "./node_modules/factorio-type-kit/factorio.d.ts"],
+  include: ["./**/*", "./node_modules/typed-factorio/factorio.d.ts"],
 };
 
 const createInfoJson = (config: Config) => ({
@@ -83,7 +83,7 @@ export const create = async (config: Config) => {
     ),
     fs.writeFile(
       paths.readme,
-      `# ${config.projectName}\n\nThe world's next best factorio mod!\n\nCreated with [create-factorio-mod](https://github.com/cdaringe/create-factorio-mod).\n`
+      `# ${config.projectName}\n\nThe world's next best factorio mod!\n\nCreated with [create-typed-factorio](https://github.com/mkaulfers/create-typed-factorio).\n`
     ),
     fs.writeFile(
       paths.tsconfig,

@@ -6,14 +6,14 @@ import { create } from ".";
 const cli = meow(
   `
   Usage
-    $ create-factorio-mod <project-name>
+    $ yarn create typed-factorio <project-name>
 
   Options
     --dirname, -d  directory to create the project in
     --factorioVersion, -V  factorio version
 
   Examples
-    $ create-factorio-mod destroy-all-biters
+    $ yarn create typed-factorio destroy-all-biters
 `,
   {
     flags: {
@@ -30,18 +30,22 @@ const cli = meow(
 );
 
 async function go() {
+
   const projectName = cli.input[0];
+
   if (!projectName || typeof projectName !== "string")
     throw new Error(`invalid projectName ${projectName}`);
+
   const config: Config = {
     dirname: cli.flags.dirname || resolve(process.cwd(), projectName),
     projectName,
-    factorioVersion: cli.flags.factorioVersion || "1.0",
+    factorioVersion: cli.flags.factorioVersion || "latest",
   };
+
   try {
     await create(config);
   } catch (err) {
-    console.error(`failed to create new project: ${projectName}\n\n\n`);
+    console.error(`Failed to create new project: ${projectName}\n\n\n`);
     console.error(err);
     process.exit(1);
   }
