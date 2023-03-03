@@ -9,10 +9,11 @@ const asInstallString = (deps: Record<string, string>) =>
     .join(" ");
 
 const devDeps = {
-  typescript: "latest",
-  "typed-factorio": "latest",
+  "lua-types": "latest",
   "npm-run-all": "latest",
-  "typescript-to-lua": "latest",
+  "typed-factorio": "latest",
+  "typescript": "latest",
+  "typescript-to-lua": "latest"
 };
 
 const getPaths = (config: Config) => {
@@ -29,7 +30,7 @@ const getPaths = (config: Config) => {
 
 const defaultControlTs =
   `
-const onTick = (_evt: OnTickPayload) => {
+const onTick = (_evt: OnTickEvent) => {
   game.print(serpent.block({ hello: "world", its_nice: "to see you" }))
 };
 
@@ -43,13 +44,14 @@ const defaultTsconfig = {
     moduleResolution: "node",
     strict: true,
     sourceMap: true,
+    types: [ "typed-factorio/runtime", "@typescript-to-lua/language-extensions" ]
   },
   tstl: {
     luaTarget: "JIT",
     noHeader: true,
     noImplicitSelf: true,
   },
-  include: ["./**/*", "./node_modules/typed-factorio/factorio.d.ts"],
+  include: ["./**/*", "./node_modules/typed-factorio/data/types.d.ts"],
 };
 
 const createInfoJson = (config: Config) => ({
@@ -102,7 +104,7 @@ export const create = async (config: Config) => {
 
   console.log(
     [
-      `\nVictory! Your mod is ready to roll. Execute the following commands to get going:`,
+      `\nYeeah Boiii! We're doing things now, it's installed, now get to coding:`,
       `  - cd "${config.dirname}"`,
       `  - yarn start`,
     ].join("\n")
