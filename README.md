@@ -19,11 +19,14 @@ To create a new mod, navigate to the directory where you want to create the mod 
 
 This will create a new directory in the current directory with the name of the mod. The directory will contain all the necessary files to start developing a new mod.
 
-## Scripts
-The following scripts are contained in the generated files:
+## Start Developing
+You'll notice there is now a `src/` directory. In there you'll find all the revelvant files, already configured in the proper structure for a mod to be packaged. Once you're done developing your mod, build it with the built in script, which will generate a new `build/` or `deployment/` directory, which will be your `lua` files that you'd traditionally use. Profit o7, and happy coding. 
 
--   `yarn build` - compiles the TypeScript files into Lua and places the files into the `src/` directory.
--   `yarn watch` - watches the TypeScript files and recompiles them when they change. Also places them into the `src/` directory. 
+## Scripts
+The following scripts are contained in the generated files, all you need to do is `cd your/mod/root/dir` and then run them.
+
+-   `yarn build` - compiles the TypeScript files into Lua and places the files into the `build/` directory.
+-   `yarn watch` - watches the TypeScript files and recompiles them when they change. Also places them into the `build/` directory. 
 -   `yarn deploy` - creates a compressed mod file that is ready for release. If you do not modify the `--dest` flag on the gulp script, it will be placed into the `deplyment/` directory, otherwise the directory you specify.
 
 To run any of these scripts, navigate to the mod directory and run the script using yarn. For example, to build the mod, run the following command from `yourProjectDestination/`:
