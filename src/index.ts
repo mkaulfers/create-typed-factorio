@@ -132,8 +132,23 @@ export const create = async (config: Config) => {
     license: "MIT",
     devDependencies: {},
     scripts: {
-      "copy:infoJSON": "cp src/info.json build/ || xcopy /Y /S src\\info.json build\\ || mkdir -p build && cp src/info.json build/",
-      "deploy": "yarn copy:infoJSON && gulp compress",
+      "copy:infoJSON:windows": "xcopy /Y /S /I src\\info.json build\\",
+      "copy:campaigns:windows": "xcopy /Y /S /I src\\campaigns build\\campaigns",
+      "copy:locale:windows": "xcopy /Y /S /I src\\locale build\\locale",
+      "copy:migrations:windows": "xcopy /Y /S /I src\\migrations build\\migrations",
+      "copy:scenarios:windows": "xcopy /Y /S /I src\\scenarios build\\scenarios",
+      "copy:tutorials:windows": "xcopy /Y /S /I src\\tutorials build\\tutorials",
+      "clean:windows": "(IF EXIST build rd /s /q build) && (IF EXIST deployment rd /s /q deployment) && exit 0",
+      "deploy_windows": "yarn clean:windows && yarn build && yarn copy:infoJSON:windows && yarn copy:campaigns:windows && yarn copy:locale:windows && yarn copy:migrations:windows && yarn copy:scenarios:windows && yarn copy:tutorials:windows && gulp compress",
+  
+      "copy:infoJSON:unix": "cp -R src/info.json build/",
+      "copy:campaigns:unix": "mkdir -p build/campaigns && cp -R src/campaigns/* build/campaigns/",
+      "copy:locale:unix": "mkdir -p build/locale && cp -R src/locale/* build/locale/",
+      "copy:migrations:unix": "mkdir -p build/migrations && cp -R src/migrations/* build/migrations/",
+      "copy:scenarios:unix": "mkdir -p build/scenarios && cp -R src/scenarios/* build/scenarios/",
+      "copy:tutorials:unix": "mkdir -p build/tutorials && cp -R src/tutorials/* build/tutorials/",
+      "clean:unix": "rm -rf build/ deployment/",
+      "deploy_unix": "yarn clean:unix && yarn build && yarn copy:infoJSON:unix && yarn copy:campaigns:unix && yarn copy:locale:unix && yarn copy:migrations:unix && yarn copy:scenarios:unix && yarn copy:tutorials:unix && gulp compress",
       "build": "tstl",
       "watch": "tstl --watch"
     }

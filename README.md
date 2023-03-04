@@ -23,11 +23,11 @@ This will create a new directory in the current directory with the name of the m
 You'll notice there is now a `src/` directory. In there you'll find all the revelvant files, already configured in the proper structure for a mod to be packaged. Once you're done developing your mod, build it with the built in script, which will generate a new `build/` or `deployment/` directory, which will be your `lua` files that you'd traditionally use. Profit o7, and happy coding. 
 
 ## Scripts
-The following scripts are contained in the generated files, all you need to do is `cd your/mod/root/dir` and then run them.
+The following scripts are contained in the generated files, all you need to do is `cd your/mod/root/dir` and then run them. Unix is for `Linux/Mac` and Windows is for... well `Windows`.
 
--   `yarn build` - compiles the TypeScript files into Lua and places the files into the `build/` directory.
+-   `yarn build_windows` or `yarn build_unix` - compiles the TypeScript files into Lua and places the files into the `build/` directory.
+-   `yarn deploy_windows` or `yarn deploy_unix` - creates a compressed mod file that is ready for release. If you do not modify the `--dest` flag on the gulp script, it will be placed into the `deplyment/` directory, otherwise the directory you specify.
 -   `yarn watch` - watches the TypeScript files and recompiles them when they change. Also places them into the `build/` directory. 
--   `yarn deploy` - creates a compressed mod file that is ready for release. If you do not modify the `--dest` flag on the gulp script, it will be placed into the `deplyment/` directory, otherwise the directory you specify.
 
 To run any of these scripts, navigate to the mod directory and run the script using yarn. For example, to build the mod, run the following command from `yourProjectDestination/`:
 `yarn build` 
@@ -35,7 +35,11 @@ To run any of these scripts, navigate to the mod directory and run the script us
 ### Building to the Factorio directory
 To build and deploy a mod to the Factorio directory, use the `--dest` flag with the `yarn deploy` command. For example, to build and deploy a mod to the directory `C:\your\factorio\mods`, modify the script `"deploy: ..."` located in the generated `package.json`. An example might look something like this :
 
-`"deploy":  "yarn copy:infoJSON && gulp compress --dest=C:\your\factorio\mods"` 
+`"deploy_windows": "yarn clean:windows && yarn build && yarn copy:infoJSON:windows && yarn copy:campaigns:windows && yarn copy:locale:windows && yarn copy:migrations:windows && yarn copy:scenarios:windows && yarn copy:tutorials:windows && gulp compress gulp compress --dest=C:\your\factorio\mods"` 
+
+Or for Unix fans:
+
+`"deploy_unix": "yarn clean:windows && yarn build && yarn copy:infoJSON:windows && yarn copy:campaigns:windows && yarn copy:locale:windows && yarn copy:migrations:windows && yarn copy:scenarios:windows && yarn copy:tutorials:windows && gulp compress gulp compress --dest=~etc\your\factorio\mods"` 
 
 ## Attribution
 This package is based on the work of [GlassBricks](https://github.com/GlassBricks/typed-factorio) and [cdaringe](https://github.com/cdaringe/create-factorio-mod/).
