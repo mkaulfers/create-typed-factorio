@@ -8,12 +8,16 @@ const asInstallString = (deps: Record<string, string>) =>
     .map(([k, v]) => `${k}@${v}`)
     .join(" ");
 
-const devDeps = {
+const devDependencies = {
+  "gulp": "latest",
+  "gulp-rename": "latest",
+  "gulp-zip": "latest",
   "lua-types": "latest",
   "npm-run-all": "latest",
   "typed-factorio": "latest",
   "typescript": "latest",
-  "typescript-to-lua": "latest"
+  "typescript-to-lua": "latest",
+  "yargs": "latest"
 };
 
 const getPaths = (config: Config) => {
@@ -21,29 +25,52 @@ const getPaths = (config: Config) => {
     packageJson: resolve(config.dirname, "package.json"),
     readme: resolve(config.dirname, "readme.md"),
     tsconfig: resolve(config.dirname, "tsconfig.json"),
+    gulpfile: resolve(config.dirname, "gulpfile.js"),
     mod: {
-      controlTs: resolve(config.dirname, "control.ts"),
-      infoJson: resolve(config.dirname, "info.json"),
+      infoJson: resolve(config.dirname, "src", "info.json"),
+      changelog: resolve(config.dirname, "src", "changelog.txt"),
+      thumbnail: resolve(config.dirname, "src", "thumbnail.png"),
+      settings: resolve(config.dirname, "src", "settings.ts"),
+      settingsUpdates: resolve(config.dirname, "src", "settings-updates.ts"),
+      settingsFinalFixes: resolve(config.dirname, "src", "settings-final-fixes.ts"),
+      data: resolve(config.dirname, "src", "data.ts"),
+      dataUpdates: resolve(config.dirname, "src", "data-updates.ts"),
+      dataFinalFixes: resolve(config.dirname, "src", "data-final-fixes.ts"),
+      controlTs: resolve(config.dirname, "src", "control.ts"),
     },
   };
 };
 
 const defaultControlTs =
   `
+// To avoid type conflicts, the global tables for the settings/data stages have to be declared manually where you need them. 
+// These types can be imported from typed-factorio/data/types or typed-factorio/settings/types.
+\n
+// import { Data, Mods } from "typed-factorio/data/types"
+// or
+// import { Data, Mods } from "typed-factorio/settings/types"
+\n
+// declare const data: Data
+// declare const mods: Mods
+\n
+// data.extend([{ ... }])
+\n
 const onTick = (_evt: OnTickEvent) => {
   game.print(serpent.block({ hello: "world", its_nice: "to see you" }))
 };
-
+\n
 script.on_event(defines.events.on_tick, onTick);
 `.trim() + "\n";
 
 const defaultTsconfig = {
   compilerOptions: {
+    rootDir: "./src",
+    outDir: "./build",
     target: "esnext",
     lib: ["esnext"],
     moduleResolution: "node",
     strict: true,
-    sourceMap: true,
+    sourceMap: false,
     types: [ "typed-factorio/runtime", "@typescript-to-lua/language-extensions" ]
   },
   tstl: {
@@ -51,15 +78,47 @@ const defaultTsconfig = {
     noHeader: true,
     noImplicitSelf: true,
   },
-  include: ["./**/*", "./node_modules/typed-factorio/data/types.d.ts"],
+  include: ["./**/*", "./node_modules/typed-factorio/data/types.d.ts", "gulpfile.js"],
 };
+
+const defaultGulpfile = `
+const gulp = require('gulp');
+const zip = require('gulp-zip');
+const rename = require('gulp-rename');
+const info = require('./build/info.json');
+const argv = require('yargs').argv;
+\n
+gulp.task('compress', () => {
+  const name = info.name.replace(/\s/g, '_');
+  const version = info.version;
+  const dest = argv.dest ? argv.dest : 'deployment';
+
+  return gulp.src('./build/**/*')
+    .pipe(zip(\`\${name}_\${version}.zip\`))
+    .pipe(rename((path) => {
+      if (argv.dest) {
+        path.dirname = '';
+      }
+    }))
+    .pipe(gulp.dest(dest));
+});
+\n
+gulp.task('default', gulp.series('compress'));
+`.trim() + "\n";
+
+const defaultLocaleCFG = `
+# https://wiki.factorio.com/Tutorial:Localisation
+# welcome-message=Hello world
+# [category]
+# title=Category related title
+`.trim() + "\n";
 
 const createInfoJson = (config: Config) => ({
   name: config.projectName,
   version: "0.0.0",
   title: config.projectName,
   author: "your-name-here",
-  factorio_version: "1.0",
+  factorio_version: "1.1.77",
   dependencies: [],
   package: {
     scripts: {},
@@ -73,10 +132,25 @@ export const create = async (config: Config) => {
     license: "MIT",
     devDependencies: {},
     scripts: {
-      "compile:watch": "tstl --watch",
-      start: "run-p compile:watch",
-    },
+      "copy:infoJSON": "cp src/info.json build/ || xcopy /Y /S src\\info.json build\\ || mkdir -p build && cp src/info.json build/",
+      "deploy": "yarn copy:infoJSON && gulp compress",
+      "build": "tstl",
+      "watch": "tstl --watch"
+    }
   };
+
+  const scenarioUrl = "https://wiki.factorio.com/Scenario_system";
+  const scenarioMessage = `Visit <a href="${scenarioUrl}">${scenarioUrl}</a> for more information on the scenario system.`;
+
+  const campaignUrl = "https://wiki.factorio.com/Tutorial:Mod_structure";
+  const campaignMessage = `Visit <a href="${campaignUrl}">${campaignUrl}</a> for more information on the campaign system.`;
+
+  const tutorialUrl = "https://wiki.factorio.com/Prototype/Tutorial";
+  const tutorialMessage = `Visit <a href="${tutorialUrl}">${tutorialUrl}</a> for more information on the tutorial system.`;
+
+  const migrationsUrl = "https://lua-api.factorio.com/latest/Migrations.html";
+  const migrationsMessage = `Visit <a href="${migrationsUrl}">${migrationsUrl}</a> for more information on migrations.`;
+
   const paths = getPaths(config);
   await Promise.all([
     fs.writeFile(
@@ -91,14 +165,35 @@ export const create = async (config: Config) => {
       paths.tsconfig,
       JSON.stringify(defaultTsconfig, null, 2) + "\n"
     ),
+    fs.writeFile(paths.gulpfile, defaultGulpfile),
+    fs.mkdir(resolve(config.dirname, "src")),
+    fs.mkdir(resolve(config.dirname, "src", "locale")),
+    fs.writeFile(resolve(config.dirname, "src", "locale", "en.cfg"), defaultLocaleCFG),
+    fs.mkdir(resolve(config.dirname, "src", "scenarios")),
+    fs.writeFile(resolve(config.dirname, "src", "scenarios", "info.html"), scenarioMessage),
+    fs.mkdir(resolve(config.dirname, "src", "campaigns")),
+    fs.writeFile(resolve(config.dirname, "src", "campaigns", "info.html"), campaignMessage),
+    fs.mkdir(resolve(config.dirname, "src", "tutorials")),
+    fs.writeFile(resolve(config.dirname, "src", "tutorials", "info.html"), tutorialMessage),
+    fs.mkdir(resolve(config.dirname, "src", "migrations")),
+    fs.writeFile(resolve(config.dirname, "src", "migrations", "info.html"), migrationsMessage),
+    fs.writeFile(paths.mod.changelog, "// Changelog goes here"),
+    fs.writeFile(paths.mod.thumbnail, ""),
+    fs.writeFile(paths.mod.settings, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
+    fs.writeFile(paths.mod.settingsUpdates, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
+    fs.writeFile(paths.mod.settingsFinalFixes, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
+    fs.writeFile(paths.mod.data, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
+    fs.writeFile(paths.mod.dataUpdates, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
+    fs.writeFile(paths.mod.dataFinalFixes, "// https://lua-api.factorio.com/latest/Data-Lifecycle.html"),
     fs.writeFile(paths.mod.controlTs, defaultControlTs),
     fs.writeFile(
       paths.mod.infoJson,
       JSON.stringify(createInfoJson(config), null, 2) + "\n"
-    ),
+    )
   ]);
+
   const [yarnCmd, ...yarnArgs] = `yarn add --dev ${asInstallString(
-    devDeps
+    devDependencies
   )}`.split(" ");
   await execa(yarnCmd, yarnArgs, { stdio: "inherit", cwd: config.dirname });
 
