@@ -89,21 +89,17 @@ const info = require('./build/info.json');
 const argv = require('yargs').argv;
 \n
 gulp.task('compress', () => {
-  const name = info.name.replace(/\s/g, '_');
+  const name = info.name.replace(/s/g, '_');
   const version = info.version;
   const dest = argv.dest ? argv.dest : 'deployment';
 
   return gulp.src('./build/**/*')
-    .pipe(zip(\`\${name}_\${version}.zip\`))
-    .pipe(rename((path) => {
-      if (argv.dest) {
-        path.dirname = '';
-      }
+    .pipe(rename(path => {
+      path.dirname = \`\${name}/\${path.dirname}\`;
     }))
+    .pipe(zip(\`\${name}_\${version}.zip\`))
     .pipe(gulp.dest(dest));
 });
-\n
-gulp.task('default', gulp.series('compress'));
 `.trim() + "\n";
 
 const defaultLocaleCFG = `
