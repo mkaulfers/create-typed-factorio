@@ -1,7 +1,7 @@
 
 # create-typed-factorio
 
-A tool to build a starting point for developing mods with factorio. The package includes scripts that allow you to quickly create and deploy a mod, developed in TypeScript, for Factorio.
+This is an `create` package for yarn (Technically installable by npm too), which would allow you to quickly buid a TypeScript -> Lua project, for developing mods with Factorio. It has some awesome built in scripts for building, cleaning, and deploying a packaged mod. (Psst, you can even deploy directly to your factorio instance, on-the-fly, for rapid iteration and testing, simply reset your scenario.) This should get you developing right out of the box, it includes all the types you would need, as well as configuing the files. When you're ready to deploy, simply remove the files you don't want from `src/` and run `yarn deploy`. Your package will be named, zipped, and ready to roll. Enjoy and please let me know if youu'd like to see any changes. 
 
 ## Dependencies
 - [Node.js](https://nodejs.org/en/)
